@@ -35,6 +35,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
   void _saveForm() {
+    final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
+
     _form.currentState.save();
     print(_editedProduct.title);
     print(_editedProduct.price);
@@ -59,7 +64,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
         title: Text('Edit Product'),
         actions: <Widget>[
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _saveForm();
+            },
             icon: Icon(Icons.save),
           ),
         ],
@@ -84,6 +91,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     imageUrl: _editedProduct.imageUrl,
                     id: null,
                   );
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please provide a value';
+                  }
+                  return null;
                 },
               ),
               TextFormField(
