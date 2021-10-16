@@ -31,6 +31,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
+      if (!_imageUrlController.text.startsWith('http') && !_imageUrlController.text.startsWith('https')) {
+        return;
+      }
+
       setState(() {});
     }
   }
@@ -94,7 +98,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 validator: (value) {
                   if (value.isEmpty) {
-                    return 'Please provide a value';
+                    return 'Please provide a title';
                   }
                   return null;
                 },
@@ -116,6 +120,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     id: null,
                   );
                 },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please provide a price';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please provide valid number';
+                  }
+                  if (double.tryParse(value) <= 0) {
+                    return 'Please provide a number greater than zero';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Description',),
@@ -133,6 +149,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     imageUrl: _editedProduct.imageUrl,
                     id: null,
                   );
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please provide a description';
+                  }
+                  if (value.length < 10) {
+                    return 'Should be at least 10 characters long';
+                  }
+                  return null;
                 },
               ),
               Row(
@@ -175,6 +200,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             imageUrl: value,
                             id: null,
                           );
+                        },
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please provide a image URL';
+                          }
+                          if (!value.startsWith('http') && !value.startsWith('https')) {
+                            return 'Please provide a valid URL';
+                          }
+                          return null;
                         },
                       ),
                   ),
