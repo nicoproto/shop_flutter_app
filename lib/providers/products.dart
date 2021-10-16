@@ -75,20 +75,19 @@ class Products with ChangeNotifier {
         'imageUrl': product.imageUrl,
         'isFavorite': product.isFavorite,
       })
-    );
+    ).then((response) {
+      final newProduct = Product(
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl,
+        id: json.decode(response.body)['name'],
+      );
 
-    final newProduct = Product(
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      id: DateTime.now().toString(),
-    );
-
-    _items.add(newProduct);
-    // _items.insert(0, newProduct);
-
-    notifyListeners();
+      _items.add(newProduct);
+      // _items.insert(0, newProduct);
+      notifyListeners();
+    });
   }
 
   Product findById(String id) {
