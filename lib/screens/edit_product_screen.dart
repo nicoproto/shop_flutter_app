@@ -58,17 +58,20 @@ class _EditProductScreenState extends State<EditProductScreen> {
         _imageUrlController.text = _editedProduct.imageUrl;
       }
 
-      _isInit = false;
     }
+    _isInit = false;
     super.didChangeDependencies();
   }
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
-      if (!_imageUrlController.text.startsWith('http') && !_imageUrlController.text.startsWith('https')) {
+      if ((!_imageUrlController.text.startsWith('http') &&
+              !_imageUrlController.text.startsWith('https')) ||
+          (!_imageUrlController.text.endsWith('.png') &&
+              !_imageUrlController.text.endsWith('.jpg') &&
+              !_imageUrlController.text.endsWith('.jpeg'))) {
         return;
       }
-
       setState(() {});
     }
   }
@@ -78,28 +81,41 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (!isValid) {
       return;
     }
-
     _form.currentState.save();
     setState(() {
       _isLoading = true;
     });
-
     if (_editedProduct.id != null) {
-      Provider.of<Products>(context, listen: false).updateProduct(
-        _editedProduct.id,
-        _editedProduct
-      );
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pop();
     } else {
       Provider.of<Products>(context, listen: false)
-        .addProduct(_editedProduct)
-        .then((_) {
-          setState(() {
-            _isLoading = true;
-          });
-          Navigator.of(context).pop();
+          .addProduct(_editedProduct)
+          .catchError((error) {
+        return showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: Text('An error occurred!'),
+                content: Text('Something went wrong.'),
+                actions: <Widget>[
+                  FlatButton(child: Text('Okay'), onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },)
+                ],
+              ),
+        );
+      }).then((_) {
+        setState(() {
+          _isLoading = false;
         });
+        Navigator.of(context).pop();
+      });
     }
-
+    // Navigator.of(context).pop();
   }
 
   @override
@@ -261,15 +277,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 isFavorite: _editedProduct.isFavorite,
                               );
                             },
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please provide a image URL';
-                              }
-                              if (!value.startsWith('http') && !value.startsWith('https')) {
-                                return 'Please provide a valid URL';
-                              }
-                              return null;
-                            },
+                            // validator: (value) {
+                            //   if (value.isEmpty) {
+                            //     return 'Please provide a image URL';
+                            //   }
+                            //   if (!value.startsWith('http') && !value.startsWith('https')) {
+                            //     return 'Please provide a valid URL';
+                            //   }
+                            //   return null;
+                            // },
                           ),
                       ),
                     ],
