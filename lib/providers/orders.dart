@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../providers/cart.dart';
 
@@ -23,14 +25,39 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
-    _orders.insert(0, OrderItem(
-      id: DateTime.now().toString(),
-      amount: total,
-      products: cartProducts,
-      dateTime: DateTime.now(),
-    ));
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
+    // final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/orders');
 
+    final timestamp = DateTime.now();
+
+    try {
+      final response = await http.post(url,
+        body: json.encode({
+          'amount': total,
+          'dateTime': timestamp.toIso8601String(),
+          'products': [
+            cartProducts.map((cp) => {
+              'id': cp.id,
+              'title': cp.title,
+              'quantity': cp.quantity,
+              'price': cp.price,
+            }).toList(),
+          ],
+        }),
+      );
+
+      _orders.insert(0, OrderItem(
+        id: json.decode(response.body)['name'],
+        amount: total,
+        products: cartProducts,
+        dateTime: timestamp,
+      ));
+      notifyListeners();
+
+    } catch (error) {
+      throw error;
+    }
     notifyListeners();
   }
 }
