@@ -25,10 +25,38 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  Future<void> fetchAndSetOrders() async {
+    final url = Uri.parse(
+        'https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData == null) {
+      return;
+    }
+
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderItem(
+          id: orderId,
+          amount: orderData['amount'],
+          dateTime: DateTime.parse(orderData['dateTime']),
+          products: (orderData['products'] as List<dynamic>)
+            .map((item) => CartItem(
+              id: item['id'],
+              title: item['title'],
+              quantity: item['quantity'],
+              price: item['price']
+            )).toList(),
+        )
+      );
+    });
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
+  }
+
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/orders.json');
-    // final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/orders');
-
     final timestamp = DateTime.now();
 
     try {
@@ -36,14 +64,13 @@ class Orders with ChangeNotifier {
         body: json.encode({
           'amount': total,
           'dateTime': timestamp.toIso8601String(),
-          'products': [
+          'products':
             cartProducts.map((cp) => {
               'id': cp.id,
               'title': cp.title,
               'quantity': cp.quantity,
               'price': cp.price,
             }).toList(),
-          ],
         }),
       );
 
