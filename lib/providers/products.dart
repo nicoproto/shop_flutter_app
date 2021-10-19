@@ -101,7 +101,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products.json');
+    final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken');
     // final url = Uri.parse('https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products');
 
     try {
@@ -139,7 +139,7 @@ class Products with ChangeNotifier {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >=0) {
       final url = Uri.parse(
-          'https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
+          'https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken');
       try {
         await http.patch(url, body: json.encode({
             'title': newProduct.title,
@@ -160,7 +160,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json');
+        'https://flutter-shop-3c1d3-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
 
