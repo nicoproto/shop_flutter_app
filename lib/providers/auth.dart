@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/http_exception.dart';
 
 class Auth with ChangeNotifier {
+
   String _token;
   DateTime _expiryDate;
   String _userId;
@@ -36,6 +37,8 @@ class Auth with ChangeNotifier {
         'https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyCz8i6Lxb8CDO40MOl8noipvHpJ2x1gKRI');
 
     try {
+      print(url);
+
       final response = await http.post(
         url,
         body: json.encode({
@@ -46,6 +49,7 @@ class Auth with ChangeNotifier {
       );
 
       final responseData = json.decode(response.body);
+      print(responseData);
 
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
@@ -71,6 +75,7 @@ class Auth with ChangeNotifier {
       prefs.setString('userData', userData);
 
     } catch (error) {
+      print(error);
       throw error;
     }
   }
